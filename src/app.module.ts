@@ -1,0 +1,29 @@
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { AccountEntity } from './accounts/account.entity';
+import { AccountsModule } from './accounts/accounts.module';
+import { PersonEntity } from './persons/person.entity';
+import { PersonsModule } from './persons/persons.module';
+import { TransactionEntity } from './transactions/transaction.entity';
+import { TransactionsModule } from './transactions/transactions.module';
+
+@Module({
+  imports: [
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: 'localhost',
+      port: 5432,
+      username: 'postgres',
+      password: 'test',
+      database: 'bondsports',
+      entities: [PersonEntity, AccountEntity, TransactionEntity], // TODO: add auto discovery of entities
+      synchronize: true,
+    }),
+    PersonsModule,
+    AccountsModule,
+    TransactionsModule,
+  ],
+  controllers: [],
+  providers: [],
+})
+export class AppModule {}
