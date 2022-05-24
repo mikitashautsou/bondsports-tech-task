@@ -3,7 +3,13 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ServiceError } from 'src/shared/errors/service.error';
 import { startTransaction } from 'src/shared/helpers/start-transaction.helper';
 import { TransactionEntity } from 'src/transactions/transaction.entity';
-import { Repository } from 'typeorm';
+import {
+  Between,
+  Repository,
+  MoreThanOrEqual,
+  LessThanOrEqual,
+  FindOperator,
+} from 'typeorm';
 import { AccountEntity } from './account.entity';
 
 @Injectable()
@@ -17,8 +23,37 @@ export class AccountsService {
 
   async getAccountTransactions(
     accountId: string,
+    filters?: { fromDate?: number; toDate?: number },
   ): Promise<TransactionEntity[]> {
-    return await this.transactionRepository.find({ where: { accountId } });
+    const whereClause: {
+      accountId: string;
+      transactionDate?: FindOperator<Date>;
+    } = {
+      accountId,
+    };
+
+    if (filters) {
+      if (filters.fromDate && filters.toDate) {
+        whereClause.transactionDate = Between(
+          new Date(filters?.fromDate),
+          new Date(filters.toDate),
+        );
+      } else if (filters.fromDate) {
+        whereClause.transactionDate = MoreThanOrEqual(
+          new Date(filters?.fromDate),
+        );
+      } else if (filters.toDate) {
+        whereClause.transactionDate = LessThanOrEqual(
+          new Date(filters?.toDate),
+        );
+      }
+    }
+    return await this.transactionRepository.find({
+      where: whereClause,
+      order: {
+        transactionDate: 'DESC',
+      },
+    });
   }
 
   async deposit(accountId: string, value: number): Promise<TransactionEntity> {

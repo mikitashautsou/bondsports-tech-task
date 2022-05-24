@@ -7,12 +7,14 @@ import {
   Patch,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AccountEntity } from './account.entity';
 import { AccountsService } from './accounts.service';
 import { AccountDTO } from './dto/account.dto';
 import { DepositRequestDTO } from './dto/deposit-request.dto';
+import { QueryAccountsDTO } from './dto/query-accounts.dto';
 import { WithdrawRequestDTO } from './dto/withdraw.request.dto';
 
 @Controller('accounts')
@@ -67,9 +69,13 @@ export class AccountsController {
   @ApiResponse({
     type: AccountDTO,
   })
-  async getAccountTransactions(@Param('accountId') accountId: string) {
+  async getAccountTransactions(
+    @Param('accountId') accountId: string,
+    @Query() { fromDate, toDate }: QueryAccountsDTO,
+  ) {
     const transactions = await this.accountsService.getAccountTransactions(
       accountId,
+      { fromDate, toDate },
     );
     return {
       transactions: transactions.map((t) => t.toDTO()),
