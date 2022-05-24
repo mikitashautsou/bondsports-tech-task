@@ -11,11 +11,25 @@ import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AccountEntity } from './account.entity';
 import { AccountsService } from './accounts.service';
 import { AccountDTO } from './dto/account.dto';
+import { DepositRequestDTO } from './dto/deposit-request.dto';
 
 @Controller('accounts')
 @ApiTags('accounts')
 export class AccountsController {
   constructor(private accountsService: AccountsService) {}
+
+  @Post(':accountId/deposit')
+  async deposit(
+    @Param('accountId') accountId: string,
+    @Body() depositRequest: DepositRequestDTO,
+  ) {
+    const transaction = await this.accountsService.deposit(
+      accountId,
+      depositRequest.value,
+    );
+    // TODO: return error message in case of failure
+    return transaction.toDTO();
+  }
 
   @Post()
   async create(@Body() createAccountDTO: AccountDTO) {
@@ -24,7 +38,7 @@ export class AccountsController {
     );
   }
 
-  @Get(':accountIdd')
+  @Get(':accountId')
   @ApiResponse({
     type: AccountDTO,
   })

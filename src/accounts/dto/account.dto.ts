@@ -11,6 +11,10 @@ import { AccountType } from '../account.entity';
 
 export class AccountDTO {
   @ApiProperty()
+  @IsOptional()
+  accountId: string;
+
+  @ApiProperty()
   @IsNotEmpty()
   personId: string;
 

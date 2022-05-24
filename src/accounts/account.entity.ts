@@ -1,4 +1,5 @@
 import { PersonEntity } from 'src/persons/person.entity';
+import { MonetaryColumn } from 'src/shared/decorators/money-column.decorator';
 import { TransactionEntity } from 'src/transactions/transaction.entity';
 import {
   Entity,
@@ -6,12 +7,13 @@ import {
   PrimaryGeneratedColumn,
   ManyToOne,
   OneToMany,
+  JoinColumn,
 } from 'typeorm';
 import { AccountDTO } from './dto/account.dto';
 
 export enum AccountType {
-  PERSONAL = 'personal',
-  CORPORATE = 'corporate',
+  PERSONAL = 'PERSONAL',
+  CORPORATE = 'CORPORATE',
 }
 
 @Entity()
@@ -19,16 +21,20 @@ export class AccountEntity {
   @PrimaryGeneratedColumn('uuid')
   accountId: string;
 
-  @ManyToOne(() => PersonEntity, (person) => person.accounts)
+  @Column({ nullable: true })
+  personId: string;
+
+  @ManyToOne(() => PersonEntity)
+  @JoinColumn({ name: 'personId' })
   person: PersonEntity;
 
   @OneToMany(() => TransactionEntity, (transaction) => transaction.account)
   transactions: TransactionEntity[];
 
-  @Column('decimal', { precision: 5, scale: 2 })
+  @MonetaryColumn()
   balance: number;
 
-  @Column('decimal', { precision: 5, scale: 2 })
+  @MonetaryColumn()
   dailyWithdrawLimit: number;
 
   @Column({
@@ -54,12 +60,13 @@ export class AccountEntity {
 
   toDTO(): AccountDTO {
     return {
+      accountId: this.accountId,
       balance: this.balance,
       creationDate: this.creationDate,
       dailyWithdrawLimit: this.dailyWithdrawLimit,
       accountType: this.accountType,
       isActive: this.isActive,
-      personId: this.person.personId,
+      personId: this.personId,
     };
   }
 }

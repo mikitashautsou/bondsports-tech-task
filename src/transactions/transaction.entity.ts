@@ -1,5 +1,12 @@
 import { AccountEntity } from 'src/accounts/account.entity';
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { MonetaryColumn } from 'src/shared/decorators/money-column.decorator';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { TransactionDTO } from './dto/transaction.dto';
 
 @Entity()
@@ -7,10 +14,14 @@ export class TransactionEntity {
   @PrimaryGeneratedColumn('uuid')
   transactionId: string;
 
+  @Column({ nullable: true })
+  accountId: string;
+
   @ManyToOne(() => AccountEntity, (account) => account.transactions)
+  @JoinColumn({ name: 'accountId' })
   account: AccountEntity;
 
-  @Column('decimal', { precision: 5, scale: 2 })
+  @MonetaryColumn()
   value: number;
 
   @Column({
@@ -25,7 +36,7 @@ export class TransactionEntity {
 
   toDTO(): TransactionDTO {
     return {
-      accountId: this.account.accountId,
+      accountId: this.accountId,
       transactionDate: this.transactionDate,
       value: this.value,
     };
