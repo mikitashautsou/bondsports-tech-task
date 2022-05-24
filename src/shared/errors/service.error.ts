@@ -1,3 +1,5 @@
-export class ServiceError {
-  constructor(public status: string) {}
+export class ServiceError extends Error {
+  constructor(public status: string) {
+    super(status);
+  }
 }

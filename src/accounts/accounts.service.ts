@@ -86,7 +86,7 @@ export class AccountsService {
         throw new ServiceError('insufficient_funds');
       }
       account.balance -= value;
-      await this.accountsRepository.save(account);
+      await this.accountsRepository.update(accountId, account);
       const transaction = await this.transactionRepository.create({
         accountId,
         value,
@@ -110,7 +110,7 @@ export class AccountsService {
   async deactivateAccount(accountId: string): Promise<void> {
     const account = await this.accountsRepository.findOne({ accountId });
     if (!account.isActive) {
-      throw new ServiceError('already_activated');
+      throw new ServiceError('already_deactivated');
     }
     account.isActive = false;
     this.accountsRepository.update(accountId, account);
@@ -123,8 +123,8 @@ export class AccountsService {
   async findPersonAccounts(
     personId: string,
     accountId: string,
-  ): Promise<AccountEntity> {
-    return await this.accountsRepository.findOne({
+  ): Promise<AccountEntity[]> {
+    return await this.accountsRepository.find({
       where: {
         person: {
           personId,
