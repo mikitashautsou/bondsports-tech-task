@@ -76,3 +76,14 @@ Nest is [MIT licensed](LICENSE).
 ## TODO
 1. Add indexes
 2. Move DB config to env variables
+3. DB migrations
+4. Code documentation
+5. Add error interceptors
+6. Add exception filters https://stackoverflow.com/questions/56883056/how-to-send-error-codes-in-nestjs-app-from-controller
+7. add timeouts
+8. Rewrite message to status codes
+## Guidelines
+
+1. Account creation
+```
+```
