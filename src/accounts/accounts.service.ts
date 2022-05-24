@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { AsyncServiceResponse } from 'src/shared/responses/async-service-response.type';
 import { TransactionEntity } from 'src/transactions/transaction.entity';
 import { Connection, Repository } from 'typeorm';
 import { AccountEntity } from './account.entity';
@@ -14,14 +15,15 @@ export class AccountsService {
     private connection: Connection,
   ) {}
 
-  async deposit(accountId: string, value: number): Promise<TransactionEntity> {
+  async deposit(
+    accountId: string,
+    value: number,
+  ): AsyncServiceResponse<void, TransactionEntity> {
     const queryRunner = this.connection.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
       const account = await this.accountsRepository.findOne({ accountId });
-      console.log(typeof account.balance);
-      console.log(typeof value);
       account.balance += value;
       this.accountsRepository.save(account);
       // TODO: reduce to one update operation
@@ -29,9 +31,50 @@ export class AccountsService {
         accountId,
         value,
       });
-      this.transactionRepository.save(transaction);
+      const transactionEntity = await this.transactionRepository.save(
+        transaction,
+      );
       await queryRunner.commitTransaction();
-      return transaction;
+      return {
+        status: 'success',
+        payload: transactionEntity,
+      };
+    } catch (e) {
+      queryRunner.rollbackTransaction();
+      console.error(e);
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async withdraw(
+    accountId: string,
+    value: number,
+  ): AsyncServiceResponse<'insufficient_funds', TransactionEntity> {
+    const queryRunner = this.connection.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const account = await this.accountsRepository.findOne({ accountId });
+      if (account.balance < value) {
+        return {
+          status: 'insufficient_funds',
+        };
+      }
+      account.balance -= value;
+      this.accountsRepository.save(account);
+      const transaction = await this.transactionRepository.create({
+        accountId,
+        value,
+      });
+      const transactionEntity = await this.transactionRepository.save(
+        transaction,
+      );
+      await queryRunner.commitTransaction();
+      return {
+        status: 'success',
+        payload: transactionEntity,
+      };
     } catch (e) {
       queryRunner.rollbackTransaction();
       console.error(e);

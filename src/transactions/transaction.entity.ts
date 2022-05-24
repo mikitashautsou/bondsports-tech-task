@@ -39,6 +39,7 @@ export class TransactionEntity {
       accountId: this.accountId,
       transactionDate: this.transactionDate,
       value: this.value,
+      transactionId: this.transactionId,
     };
   }
 }

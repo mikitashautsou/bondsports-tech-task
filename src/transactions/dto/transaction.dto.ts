@@ -8,6 +8,10 @@ import {
 
 export class TransactionDTO {
   @ApiProperty()
+  @IsOptional()
+  transactionId: string;
+
+  @ApiProperty()
   @IsNotEmpty()
   accountId: string;
 

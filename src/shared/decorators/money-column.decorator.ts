@@ -6,7 +6,7 @@ export const MonetaryColumn = () => {
   return applyDecorators(
     Column({
       type: 'decimal',
-      precision: 5,
+      precision: 15,
       scale: 2,
       transformer: new DecimalTransformer(),
     }),
