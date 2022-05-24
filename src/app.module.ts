@@ -1,9 +1,11 @@
 import { Module } from '@nestjs/common';
+import { APP_FILTER } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AccountEntity } from './accounts/account.entity';
 import { AccountsModule } from './accounts/accounts.module';
 import { PersonEntity } from './persons/person.entity';
 import { PersonsModule } from './persons/persons.module';
+import { ServiceErrorFilter } from './shared/filters/service-error.filter';
 import { TransactionEntity } from './transactions/transaction.entity';
 import { TransactionsModule } from './transactions/transactions.module';
 
@@ -24,6 +26,11 @@ import { TransactionsModule } from './transactions/transactions.module';
     TransactionsModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_FILTER,
+      useClass: ServiceErrorFilter,
+    },
+  ],
 })
 export class AppModule {}

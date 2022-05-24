@@ -3,14 +3,14 @@ import {
   Controller,
   Delete,
   Get,
+  HttpException,
   HttpStatus,
   Param,
   Patch,
   Post,
-  Res,
+  Put,
 } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Response } from 'express';
 import { AccountEntity } from './account.entity';
 import { AccountsService } from './accounts.service';
 import { AccountDTO } from './dto/account.dto';
@@ -27,56 +27,31 @@ export class AccountsController {
     @Param('accountId') accountId: string,
     @Body() depositRequest: DepositRequestDTO,
   ) {
-    const { status, payload } = await this.accountsService.deposit(
+    const transaction = await this.accountsService.deposit(
       accountId,
       depositRequest.value,
     );
-    if (status === 'error') {
-      return {
-        status: 'error',
-        message: 'An error occurred while depositing funds',
-      };
-    }
-    if (status === 'success') {
-      return {
-        status: 'success',
-        message: 'Funds successfully deposited',
-        transaction: payload.toDTO(),
-      };
-    }
+
+    return {
+      status: 'success',
+      transaction: transaction.toDTO(),
+    };
   }
 
   @Post(':accountId/withdraw')
   async withdraw(
     @Param('accountId') accountId: string,
     @Body() withdrawRequest: WithdrawRequestDTO,
-    @Res() response: Response,
   ) {
-    const { status, payload } = await this.accountsService.withdraw(
+    const transaction = await this.accountsService.withdraw(
       accountId,
       withdrawRequest.value,
     );
-    if (status === 'error') {
-      response.status(HttpStatus.INTERNAL_SERVER_ERROR).send(
-        JSON.stringify({
-          status: 'error',
-          message: 'An error occurred while withdrawing funds',
-        }),
-      );
-    } else if (status === 'insufficient_funds') {
-      response.status(HttpStatus.BAD_REQUEST).send(
-        JSON.stringify({
-          status: 'error',
-          message: 'Insufficient funds to withdraw from the account',
-        }),
-      );
-    } else if (status === 'success') {
-      response.status(HttpStatus.OK).send({
-        status: 'success',
-        message: 'Funds successfully withdrawn',
-        transaction: payload.toDTO(),
-      });
-    }
+
+    return {
+      status: 'success',
+      transaction: transaction?.toDTO(),
+    };
   }
 
   @Get(':accountId/balance')
@@ -87,6 +62,28 @@ export class AccountsController {
     const accountEntity = await this.accountsService.findById(accountId);
     return {
       balance: accountEntity.balance,
+    };
+  }
+
+  @Put(':accountId/activate')
+  @ApiResponse({
+    type: AccountDTO,
+  })
+  async activateAccount(@Param('accountId') accountId: string) {
+    await this.accountsService.activateAccount(accountId);
+    return {
+      status: 'success',
+    };
+  }
+
+  @Put(':accountId/deactivate')
+  @ApiResponse({
+    type: AccountDTO,
+  })
+  async deactivateAccount(@Param('accountId') accountId: string) {
+    await this.accountsService.deactivateAccount(accountId);
+    return {
+      status: 'success',
     };
   }
 

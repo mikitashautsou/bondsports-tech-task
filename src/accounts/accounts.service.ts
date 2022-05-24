@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { AsyncServiceResponse } from 'src/shared/responses/async-service-response.type';
+import { ServiceError } from 'src/shared/errors/service.error';
+import { startTransaction } from 'src/shared/helpers/start-transaction.helper';
 import { TransactionEntity } from 'src/transactions/transaction.entity';
-import { Connection, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { AccountEntity } from './account.entity';
 
 @Injectable()
@@ -12,21 +13,16 @@ export class AccountsService {
     private accountsRepository: Repository<AccountEntity>,
     @InjectRepository(TransactionEntity)
     private transactionRepository: Repository<TransactionEntity>,
-    private connection: Connection,
   ) {}
 
-  async deposit(
-    accountId: string,
-    value: number,
-  ): AsyncServiceResponse<void, TransactionEntity> {
-    const queryRunner = this.connection.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-    try {
+  async deposit(accountId: string, value: number): Promise<TransactionEntity> {
+    return await startTransaction(async () => {
       const account = await this.accountsRepository.findOne({ accountId });
+      if (!account.isActive) {
+        throw new ServiceError('account_is_deactivated');
+      }
       account.balance += value;
-      this.accountsRepository.save(account);
-      // TODO: reduce to one update operation
+      await this.accountsRepository.save(account);
       const transaction = await this.transactionRepository.create({
         accountId,
         value,
@@ -34,35 +30,22 @@ export class AccountsService {
       const transactionEntity = await this.transactionRepository.save(
         transaction,
       );
-      await queryRunner.commitTransaction();
-      return {
-        status: 'success',
-        payload: transactionEntity,
-      };
-    } catch (e) {
-      queryRunner.rollbackTransaction();
-      console.error(e);
-    } finally {
-      await queryRunner.release();
-    }
+      return transactionEntity;
+    });
   }
 
-  async withdraw(
-    accountId: string,
-    value: number,
-  ): AsyncServiceResponse<'insufficient_funds', TransactionEntity> {
-    const queryRunner = this.connection.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-    try {
+  async withdraw(accountId: string, value: number): Promise<TransactionEntity> {
+    return await startTransaction(async () => {
       const account = await this.accountsRepository.findOne({ accountId });
+
+      if (!account.isActive) {
+        throw new ServiceError('account_is_deactivated');
+      }
       if (account.balance < value) {
-        return {
-          status: 'insufficient_funds',
-        };
+        throw new ServiceError('insufficient_funds');
       }
       account.balance -= value;
-      this.accountsRepository.save(account);
+      await this.accountsRepository.save(account);
       const transaction = await this.transactionRepository.create({
         accountId,
         value,
@@ -70,17 +53,26 @@ export class AccountsService {
       const transactionEntity = await this.transactionRepository.save(
         transaction,
       );
-      await queryRunner.commitTransaction();
-      return {
-        status: 'success',
-        payload: transactionEntity,
-      };
-    } catch (e) {
-      queryRunner.rollbackTransaction();
-      console.error(e);
-    } finally {
-      await queryRunner.release();
+      return transactionEntity;
+    });
+  }
+
+  async activateAccount(accountId: string): Promise<void> {
+    const account = await this.accountsRepository.findOne({ accountId });
+    if (account.isActive) {
+      throw new ServiceError('already_activated');
     }
+    account.isActive = true;
+    this.accountsRepository.update(accountId, account);
+  }
+
+  async deactivateAccount(accountId: string): Promise<void> {
+    const account = await this.accountsRepository.findOne({ accountId });
+    if (!account.isActive) {
+      throw new ServiceError('already_activated');
+    }
+    account.isActive = false;
+    this.accountsRepository.update(accountId, account);
   }
 
   async create(account: AccountEntity): Promise<AccountEntity> {
