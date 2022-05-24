@@ -31,6 +31,17 @@ export class AccountsController {
     return transaction.toDTO();
   }
 
+  @Get(':accountId/balance')
+  @ApiResponse({
+    type: AccountDTO,
+  })
+  async getAccountBalance(@Param('accountId') accountId: string) {
+    const accountEntity = await this.accountsService.findById(accountId);
+    return {
+      balance: accountEntity.balance,
+    };
+  }
+
   @Post()
   async create(@Body() createAccountDTO: AccountDTO) {
     return await this.accountsService.create(
