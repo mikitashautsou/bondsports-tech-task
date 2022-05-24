@@ -15,6 +15,12 @@ export class AccountsService {
     private transactionRepository: Repository<TransactionEntity>,
   ) {}
 
+  async getAccountTransactions(
+    accountId: string,
+  ): Promise<TransactionEntity[]> {
+    return await this.transactionRepository.find({ where: { accountId } });
+  }
+
   async deposit(accountId: string, value: number): Promise<TransactionEntity> {
     return await startTransaction(async () => {
       const account = await this.accountsRepository.findOne({ accountId });

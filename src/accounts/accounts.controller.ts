@@ -3,8 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  HttpException,
-  HttpStatus,
   Param,
   Patch,
   Post,
@@ -62,6 +60,19 @@ export class AccountsController {
     const accountEntity = await this.accountsService.findById(accountId);
     return {
       balance: accountEntity.balance,
+    };
+  }
+
+  @Get(':accountId/transactions')
+  @ApiResponse({
+    type: AccountDTO,
+  })
+  async getAccountTransactions(@Param('accountId') accountId: string) {
+    const transactions = await this.accountsService.getAccountTransactions(
+      accountId,
+    );
+    return {
+      transactions: transactions.map((t) => t.toDTO()),
     };
   }
 
