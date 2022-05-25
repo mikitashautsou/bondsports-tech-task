@@ -18,6 +18,7 @@ import { TransactionsModule } from './transactions/transactions.module';
       username: 'postgres',
       password: 'test',
       database: 'bondsports',
+      logging: true,
       entities: [PersonEntity, AccountEntity, TransactionEntity], // TODO: add auto discovery of entities
       synchronize: true,
     }),

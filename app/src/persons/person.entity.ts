@@ -24,6 +24,11 @@ export class PersonEntity {
   }
 
   toDTO(): PersonDTO {
-    return this;
+    return {
+      personId: this.personId,
+      birthDate: this.birthDate,
+      document: this.document,
+      name: this.name,
+    };
   }
 }

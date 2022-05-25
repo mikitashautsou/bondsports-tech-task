@@ -1,8 +1,13 @@
+import { Optional } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsNotEmpty } from 'class-validator';
+import { IsNotEmpty } from 'class-validator';
 import { PersonEntity } from '../person.entity';
 
 export class PersonDTO {
+  @ApiProperty()
+  @Optional()
+  personId: string;
+
   @ApiProperty()
   @IsNotEmpty()
   name: string;
@@ -12,7 +17,7 @@ export class PersonDTO {
   document: string;
 
   @ApiProperty()
-  @IsDateString()
+  @IsNotEmpty()
   birthDate: Date;
 
   constructor(initialData: Partial<PersonEntity>) {

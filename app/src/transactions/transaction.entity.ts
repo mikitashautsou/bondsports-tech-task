@@ -9,7 +9,7 @@ import {
 } from 'typeorm';
 import { TransactionDTO } from './dto/transaction.dto';
 
-@Entity()
+@Entity('transactions')
 export class TransactionEntity {
   @PrimaryGeneratedColumn('uuid')
   transactionId: string;
@@ -17,7 +17,10 @@ export class TransactionEntity {
   @Column({ nullable: true })
   accountId: string;
 
-  @ManyToOne(() => AccountEntity, (account) => account.transactions)
+  @ManyToOne(() => AccountEntity, (account) => account.transactions, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   @JoinColumn({ name: 'accountId' })
   account: AccountEntity;
 

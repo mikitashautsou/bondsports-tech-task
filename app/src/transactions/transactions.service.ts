@@ -1,14 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { TransactionEntity } from './transaction.entity';
+import { TransactionsRepository } from './transaction.repository';
 
 @Injectable()
 export class TransactionsService {
-  constructor(
-    @InjectRepository(TransactionEntity)
-    private transactionsRepository: Repository<TransactionEntity>,
-  ) {}
+  constructor(private transactionsRepository: TransactionsRepository) {}
+
+  async calcWithdrawnAmount(accountId: string, startDate: Date, endDate: Date) {
+    return await this.transactionsRepository.calcWithdrawnAmount(
+      accountId,
+      startDate,
+      endDate,
+    );
+  }
 
   async create(transaction: TransactionEntity): Promise<TransactionEntity> {
     return await this.transactionsRepository.save(transaction);

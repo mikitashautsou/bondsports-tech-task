@@ -9,6 +9,7 @@ import {
 } from 'class-validator';
 import { AccountType } from '../account.entity';
 
+// TODO: create separate dto for update requests
 export class AccountDTO {
   @ApiProperty()
   @IsOptional()
@@ -26,8 +27,8 @@ export class AccountDTO {
   @ApiProperty({ minimum: 0 })
   @IsNumber()
   @Min(0)
+  @IsOptional()
   dailyWithdrawLimit: number;
-
   @ApiProperty({ enum: AccountType })
   @IsEnum(AccountType)
   accountType: AccountType;

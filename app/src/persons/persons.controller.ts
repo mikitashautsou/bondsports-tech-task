@@ -28,6 +28,11 @@ export class PersonsController {
   })
   async findById(@Param('personId') personId: string) {
     const personEntity = await this.personsService.findById(personId);
+    if (!personEntity) {
+      return {
+        status: 'person_not_found',
+      };
+    }
     return personEntity.toDTO();
   }
 

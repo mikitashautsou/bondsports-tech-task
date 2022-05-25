@@ -24,7 +24,10 @@ export class AccountEntity {
   @Column({ nullable: true })
   personId: string;
 
-  @ManyToOne(() => PersonEntity)
+  @ManyToOne(() => PersonEntity, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   @JoinColumn({ name: 'personId' })
   person: PersonEntity;
 
@@ -34,7 +37,7 @@ export class AccountEntity {
   @MonetaryColumn()
   balance: number;
 
-  @MonetaryColumn()
+  @MonetaryColumn({ default: null })
   dailyWithdrawLimit: number;
 
   @Column({

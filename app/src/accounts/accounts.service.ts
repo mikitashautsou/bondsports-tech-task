@@ -1,8 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ServiceError } from 'src/shared/errors/service.error';
+import {
+  getEndOfTheDay,
+  getStartOfTheDay,
+} from 'src/shared/helpers/date.utils';
 import { startTransaction } from 'src/shared/helpers/start-transaction.helper';
 import { TransactionEntity } from 'src/transactions/transaction.entity';
+import { TransactionsRepository } from 'src/transactions/transaction.repository';
 import {
   Between,
   Repository,
@@ -17,8 +22,7 @@ export class AccountsService {
   constructor(
     @InjectRepository(AccountEntity)
     private accountsRepository: Repository<AccountEntity>,
-    @InjectRepository(TransactionEntity)
-    private transactionRepository: Repository<TransactionEntity>,
+    private transactionsRepository: TransactionsRepository,
   ) {}
 
   async getAccountTransactions(
@@ -48,7 +52,7 @@ export class AccountsService {
         );
       }
     }
-    return await this.transactionRepository.find({
+    return await this.transactionsRepository.find({
       where: whereClause,
       order: {
         transactionDate: 'DESC',
@@ -64,11 +68,11 @@ export class AccountsService {
       }
       account.balance += value;
       await this.accountsRepository.save(account);
-      const transaction = await this.transactionRepository.create({
+      const transaction = await this.transactionsRepository.create({
         accountId,
         value,
       });
-      const transactionEntity = await this.transactionRepository.save(
+      const transactionEntity = await this.transactionsRepository.save(
         transaction,
       );
       return transactionEntity;
@@ -85,13 +89,25 @@ export class AccountsService {
       if (account.balance < value) {
         throw new ServiceError('insufficient_funds');
       }
+      const now = new Date();
+
+      const todayWithdrawnAmount =
+        await this.transactionsRepository.calcWithdrawnAmount(
+          accountId,
+          getStartOfTheDay(now),
+          getEndOfTheDay(now),
+        );
+      console.log({ todayWithdrawnAmount });
+      if (todayWithdrawnAmount >= account.dailyWithdrawLimit) {
+        throw new ServiceError('withdraw_limit_exceeded');
+      }
       account.balance -= value;
       await this.accountsRepository.update(accountId, account);
-      const transaction = await this.transactionRepository.create({
+      const transaction = await this.transactionsRepository.create({
         accountId,
-        value,
+        value: -value,
       });
-      const transactionEntity = await this.transactionRepository.save(
+      const transactionEntity = await this.transactionsRepository.save(
         transaction,
       );
       return transactionEntity;
