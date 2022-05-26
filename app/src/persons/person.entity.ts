@@ -2,7 +2,7 @@ import { AccountEntity } from 'src/accounts/account.entity';
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { PersonDTO } from './dto/person.dto';
 
-@Entity()
+@Entity('persons')
 export class PersonEntity {
   @PrimaryGeneratedColumn('uuid')
   personId: string;

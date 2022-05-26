@@ -4,11 +4,13 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
-  Put,
 } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { CreatePersonDTO } from './dto/create-person.dto';
 import { PersonDTO } from './dto/person.dto';
+import { UpdatePersonDTO } from './dto/update-person.dto';
 import { PersonEntity } from './person.entity';
 import { PersonsService } from './persons.service';
 
@@ -18,7 +20,7 @@ export class PersonsController {
   constructor(private personsService: PersonsService) {}
 
   @Post()
-  async create(@Body() createPersonDTO: PersonDTO) {
+  async create(@Body() createPersonDTO: CreatePersonDTO) {
     return await this.personsService.create(new PersonEntity(createPersonDTO));
   }
 
@@ -45,10 +47,10 @@ export class PersonsController {
     return persons.map((p) => p.toDTO());
   }
 
-  @Put(':personId')
+  @Patch(':personId')
   async update(
     @Param('personId') personId: string,
-    @Body() updatePersonDTO: PersonDTO,
+    @Body() updatePersonDTO: UpdatePersonDTO,
   ) {
     return await this.personsService.update(
       personId,

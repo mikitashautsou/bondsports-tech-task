@@ -8,7 +8,9 @@ import {
   Post,
 } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { CreateTransactionDTO } from './dto/create-transaction.dto';
 import { TransactionDTO } from './dto/transaction.dto';
+import { UpdateTransactionDTO } from './dto/update-transaction.dto';
 import { TransactionEntity } from './transaction.entity';
 import { TransactionsService } from './transactions.service';
 
@@ -18,7 +20,7 @@ export class TransactionsController {
   constructor(private transactionsService: TransactionsService) {}
 
   @Post()
-  async create(@Body() createTransactionDTO: TransactionDTO) {
+  async create(@Body() createTransactionDTO: CreateTransactionDTO) {
     return await this.transactionsService.create(
       new TransactionEntity(createTransactionDTO),
     );
@@ -32,6 +34,11 @@ export class TransactionsController {
     const transactionEntity = await this.transactionsService.findById(
       transactionId,
     );
+    if (!transactionEntity) {
+      return {
+        status: 'transaction_not_found',
+      };
+    }
     return transactionEntity.toDTO();
   }
 
@@ -47,7 +54,7 @@ export class TransactionsController {
   @Patch(':transactionId')
   async update(
     @Param('transactionId') transactionId: string,
-    @Body() updateTransactionDTO: TransactionDTO,
+    @Body() updateTransactionDTO: UpdateTransactionDTO,
   ) {
     return await this.transactionsService.update(
       transactionId,

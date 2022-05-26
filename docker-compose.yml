@@ -8,8 +8,6 @@ services:
     environment:
       POSTGRES_DB: bondsports
       POSTGRES_PASSWORD: test
-    ports:
-      - 5432:5432
   app:
     image: app-image:latest
     restart: always

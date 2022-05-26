@@ -21,7 +21,6 @@ import { TransactionsModule } from './transactions/transactions.module';
       database: ENV.DB_DATABASE,
       logging: true,
       entities: [PersonEntity, AccountEntity, TransactionEntity], // TODO: add auto discovery of entities
-      synchronize: true, // TODO: Only for demonstration purposes, use migrations instead
     }),
     PersonsModule,
     AccountsModule,

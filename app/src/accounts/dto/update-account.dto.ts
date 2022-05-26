@@ -1,41 +1,39 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDate, IsEnum, IsNotEmpty, IsNumber, Min } from 'class-validator';
+import { IsDate, IsEnum, IsNumber, IsOptional, Min } from 'class-validator';
 import { AccountType } from '../account.entity';
 
-export class AccountDTO {
+export class UpdateAccountDTO {
   @ApiProperty()
-  @IsNotEmpty()
-  accountId: string;
-
-  @ApiProperty()
-  @IsNotEmpty()
+  @IsOptional()
   personId: string;
 
   @ApiProperty({ minimum: 0 })
   @IsNumber()
   @Min(0)
+  @IsOptional()
   balance: number;
 
   @ApiProperty({ minimum: 0 })
   @IsNumber()
   @Min(0)
-  @IsNotEmpty()
+  @IsOptional()
   dailyWithdrawLimit: number;
 
   @ApiProperty({ enum: AccountType })
   @IsEnum(AccountType)
+  @IsOptional()
   accountType: AccountType;
 
   @ApiProperty()
-  @IsNotEmpty()
+  @IsOptional()
   isActive: boolean;
 
   @ApiProperty()
   @IsDate()
-  @IsNotEmpty()
+  @IsOptional()
   creationDate: Date;
 
-  constructor(initialData: Partial<AccountDTO>) {
+  constructor(initialData: Partial<UpdateAccountDTO>) {
     Object.assign(this, initialData);
   }
 }

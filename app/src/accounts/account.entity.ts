@@ -16,7 +16,7 @@ export enum AccountType {
   CORPORATE = 'CORPORATE',
 }
 
-@Entity()
+@Entity('accounts')
 export class AccountEntity {
   @PrimaryGeneratedColumn('uuid')
   accountId: string;

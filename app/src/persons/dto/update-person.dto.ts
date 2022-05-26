@@ -1,23 +1,18 @@
 import { Optional } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty } from 'class-validator';
 import { PersonEntity } from '../person.entity';
 
-export class PersonDTO {
+export class UpdatePersonDTO {
   @ApiProperty()
-  @IsNotEmpty()
-  personId: string;
-
-  @ApiProperty()
-  @IsNotEmpty()
+  @Optional()
   name: string;
 
   @ApiProperty()
-  @IsNotEmpty()
+  @Optional()
   document: string;
 
   @ApiProperty()
-  @IsNotEmpty()
+  @Optional()
   birthDate: Date;
 
   constructor(initialData: Partial<PersonEntity>) {

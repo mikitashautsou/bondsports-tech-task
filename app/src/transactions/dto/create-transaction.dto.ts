@@ -1,11 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsDate, IsNotEmpty, IsNumber } from 'class-validator';
 
-export class TransactionDTO {
-  @ApiProperty()
-  @IsNotEmpty()
-  transactionId: string;
-
+export class CreateTransactionDTO {
   @ApiProperty()
   @IsNotEmpty()
   accountId: string;
@@ -18,7 +14,7 @@ export class TransactionDTO {
   @IsNotEmpty()
   transactionDate: Date;
 
-  constructor(initialData: Partial<TransactionDTO>) {
+  constructor(initialData: Partial<CreateTransactionDTO>) {
     Object.assign(this, initialData);
   }
 }

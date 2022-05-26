@@ -13,8 +13,10 @@ import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AccountEntity } from './account.entity';
 import { AccountsService } from './accounts.service';
 import { AccountDTO } from './dto/account.dto';
+import { CreateAccountDTO } from './dto/create-account.dto';
 import { DepositRequestDTO } from './dto/deposit-request.dto';
 import { QueryAccountsDTO } from './dto/query-accounts.dto';
+import { UpdateAccountDTO } from './dto/update-account.dto';
 import { WithdrawRequestDTO } from './dto/withdraw.request.dto';
 
 @Controller('accounts')
@@ -105,7 +107,7 @@ export class AccountsController {
   }
 
   @Post()
-  async create(@Body() createAccountDTO: AccountDTO) {
+  async create(@Body() createAccountDTO: CreateAccountDTO) {
     return await this.accountsService.create(
       new AccountEntity(createAccountDTO),
     );
@@ -117,6 +119,11 @@ export class AccountsController {
   })
   async findById(@Param('accountId') accountId: string) {
     const accountEntity = await this.accountsService.findById(accountId);
+    if (!accountEntity) {
+      return {
+        status: 'account_not_found',
+      };
+    }
     return accountEntity.toDTO();
   }
 
@@ -132,7 +139,7 @@ export class AccountsController {
   @Patch(':accountId')
   async update(
     @Param('accountId') accountId: string,
-    @Body() updateAccountDTO: AccountDTO,
+    @Body() updateAccountDTO: UpdateAccountDTO,
   ) {
     return await this.accountsService.update(
       accountId,

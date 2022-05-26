@@ -29,10 +29,7 @@ export class TransactionsService {
   }
 
   async update(id: string, transaction: TransactionEntity): Promise<void> {
-    await this.transactionsRepository.update(
-      { transactionId: id },
-      transaction,
-    );
+    await this.transactionsRepository.update(id, transaction);
   }
 
   async remove(id: string): Promise<void> {

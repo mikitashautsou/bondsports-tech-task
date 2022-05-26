@@ -3,11 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
 import { PersonEntity } from '../person.entity';
 
-export class PersonDTO {
-  @ApiProperty()
-  @IsNotEmpty()
-  personId: string;
-
+export class CreatePersonDTO {
   @ApiProperty()
   @IsNotEmpty()
   name: string;

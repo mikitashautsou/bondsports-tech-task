@@ -1,0 +1,16 @@
+version: '3.1'
+# Starts databases
+services:
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: bondsports
+      POSTGRES_PASSWORD: test
+    ports:
+      - 5432:5432
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
