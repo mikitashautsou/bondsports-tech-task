@@ -5,8 +5,6 @@ describe("Persons API", () => {
       url: "/persons",
       failOnStatusCode: false,
     }).then((response) => {
-      console.log(response);
-
       expect(response.status).to.be.equal(400);
       expect(response.body.message).includes("name should not be empty");
       expect(response.body.message).includes("document should not be empty");

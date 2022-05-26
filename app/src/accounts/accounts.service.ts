@@ -97,7 +97,6 @@ export class AccountsService {
           getStartOfTheDay(now),
           getEndOfTheDay(now),
         );
-      console.log({ todayWithdrawnAmount });
       if (todayWithdrawnAmount >= account.dailyWithdrawLimit) {
         throw new ServiceError('withdraw_limit_exceeded');
       }

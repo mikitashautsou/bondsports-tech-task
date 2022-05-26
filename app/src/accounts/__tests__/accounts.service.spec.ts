@@ -1,7 +1,7 @@
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ServiceError } from 'src/shared/errors/service.error';
-import { TransactionEntity } from 'src/transactions/transaction.entity';
+import { TransactionsRepository } from 'src/transactions/transaction.repository';
 import { AccountEntity } from '../account.entity';
 import { AccountsService } from '../accounts.service';
 
@@ -27,6 +27,7 @@ const transactionRepository = {
   create: jest.fn(),
   save: jest.fn(),
   delete: jest.fn(),
+  calcWithdrawnAmount: jest.fn(),
 };
 
 describe('accounts service', () => {
@@ -41,7 +42,7 @@ describe('accounts service', () => {
           useFactory: () => accountRepository,
         },
         {
-          provide: getRepositoryToken(TransactionEntity),
+          provide: TransactionsRepository,
           useFactory: () => transactionRepository,
         },
         AccountsService,
@@ -122,6 +123,7 @@ describe('accounts service', () => {
     saveSpy.mockResolvedValueOnce(true);
     transactionRepository.create.mockResolvedValueOnce(mockTransaction);
     transactionRepository.save.mockResolvedValueOnce(mockTransactionEntity);
+    transactionRepository.calcWithdrawnAmount.mockResolvedValueOnce(0);
 
     await accountsService.withdraw(mockAccountId, mockAmount);
 

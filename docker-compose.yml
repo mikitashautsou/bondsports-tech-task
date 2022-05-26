@@ -1,0 +1,30 @@
+version: '3.1'
+
+services:
+
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: bondsports
+      POSTGRES_PASSWORD: test
+    ports:
+      - 5432:5432
+  app:
+    image: app-image:latest
+    restart: always
+    
+    build:
+      context: app/
+    environment:
+      DB_HOST: 'db'
+      DB_PORT: 5432
+      DB_PASSWORD: test
+      DB_DATABASE: bondsports
+      DB_USERNAME: postgres
+      PORT: 3000
+    depends_on:
+      - db
+    restart: always
+    ports:
+      - 4000:3000
