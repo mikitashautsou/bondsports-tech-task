@@ -35,3 +35,40 @@ pnpm install
 pnpm run test
 ```
 
+
+
+# Setup App Configuration for Cloud Service Deployment
+Application can be deployed to any cloud service that supports Kubernetes.
+
+For local setup developers can use `minikube` tool
+
+To run application via Kubernetes follow steps described below
+1. Install minikube
+2. Run the following command to start minikube
+```
+minikube start
+```
+3. Install helm
+4. Before installing helm chart, app images must be built
+For production environment image should be pushed to some docker image registry like dockerhub, AWS ECR, etc.
+For local environment docker images can be built manually
+```bash
+eval $(minikube -p minikube docker-env)
+docker build ./app -t bank-service-image:v1
+```
+4. Install app chart 
+```bash
+helm install bondsports -f helm/values/local.yaml helm/
+```
+For the subsequent launches of application use
+```bash
+helm install test-chart-1 helm/
+```
+minikube addons enable ingress
+minikube docker-env
+eval $(minikube -p minikube docker-env)
+
+docker build ./app -t bank-service-image:v1
+
+5. Wait until Kubernetes cluster set up all infrastructure
+6. Access app on `http://localhost:80`

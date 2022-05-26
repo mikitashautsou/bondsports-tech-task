@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: bank-deployment
+
+spec:
+  replicas: {{ .Values.app.bankService.replicas }}
+  selector:
+    matchLabels:
+      service: bank
+
+  template:
+    metadata:
+      labels:
+        service: bank
+    spec:
+      containers:
+        - name: bank-service-container
+          image: {{ .Values.app.bankService.image.name }}
+          imagePullPolicy: Never
+          ports:
+            - containerPort: {{ .Values.app.bankService.port }}
+          env:
+            - name: DB_HOST
+              value: db-clusterip-service
+            - name: PORT
+              value: "{{ .Values.app.bankService.port }}"
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_PASSWORD # TODO: should be moved to secret in real env
+              value: test
+            - name: DB_USERNAME # TODO: should be moved to secret in real env
+              value: postgres
+            - name: DB_DATABASE # TODO: should be moved to secret in real env
+              value: bondsports
+          resources:
+            limits:
+              memory: 512Mi
+              cpu: "1"
+            requests:
+              memory: 256Mi
+              cpu: "0.2"

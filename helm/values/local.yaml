@@ -1,0 +1,9 @@
+app:
+  name: bond-sports
+  bankService:
+    replicas: 1
+    image:
+      name: "bank-service-image:v1"
+    port: "3000"
+  db:
+    replicas: 1

@@ -1,0 +1,39 @@
+# PostgreSQL StatefulSet
+apiVersion: apps/v1
+kind: StatefulSet
+
+metadata:
+  name: postgres-deployment
+
+spec:
+  replicas: {{ .Values.app.db.replicas }}
+  serviceName: bank-db
+  selector:
+    matchLabels:
+      service: postgresql-db
+  template:
+    metadata:
+      labels:
+        service: postgresql-db
+    spec:
+      containers:
+        - name: postgresql-db
+          image: postgres:latest
+          volumeMounts:
+            - name: postgresql-db-disk
+              mountPath: /data
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: bondsports
+            - name: POSTGRES_PASSWORD
+              value: test
+  volumeClaimTemplates:
+    - metadata:
+        name: postgresql-db-disk
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 25Gi
